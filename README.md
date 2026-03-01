@@ -57,7 +57,7 @@ app/src/main/java/io/github/mobilutils/simplentpchecker/
 ./gradlew installDebug
 
 # Launch on connected device
-adb shell am start -n com.example.simplentpchecker/.MainActivity
+adb shell am start -n io.github.mobilutils.simplentpchecker/.MainActivity
 ```
 
 ## Permissions
