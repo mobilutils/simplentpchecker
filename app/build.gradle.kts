@@ -11,7 +11,7 @@ android {
     defaultConfig {
         applicationId = "io.github.mobilutils.simplentpchecker"
         minSdk = 26
-        targetSdk = 35
+        targetSdkVersion(rootProject.extra["defaultTargetSdkVersion"] as Int)
         versionCode = 1
         versionName = "1.0"
 
@@ -50,6 +50,7 @@ android {
             excludes += "META-INF/NOTICE*"
         }
     }
+    buildToolsVersion = "36.0.0"
 }
 
 dependencies {
