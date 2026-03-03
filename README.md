@@ -5,7 +5,7 @@ A minimal, modern Android app that tests the reachability of any NTP (Network Ti
 ## Visuals
 |Success | DNS Failure | Timeout |
 |---|---|---|
-|![Screenshot OK](screenshots/v1.1/20260303_v1.1_Screenshot_REACHABLE-OK_221820.png)|![Screenshot DNS FAILURE](screenshots/v1.1/20260303_v1.1_Screenshot-DNS%20FAILURE_213210.png)|![Screenshot TIMEOUT](screenshots/v1.1/20260303_v1.1_Screenshot-TIMEOUT_213242.png)|
+|![Screenshot OK](screenshots/v2.0/20260303_v2.0_Screenshot_HISTORY_232632.png)|![Screenshot DNS FAILURE](screenshots/v2.0/20260303_v2.0_Screenshot_TIMEOUT_232710.png)|![Screenshot TIMEOUT](screenshots/v2.0/20260303_v2.0_Screenshot-DNS-KO_232646.png)|
 
 ## Features
 
