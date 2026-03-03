@@ -27,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.NetworkCheck
 import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.Button
@@ -40,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -48,6 +50,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -76,7 +79,9 @@ class MainActivity : ComponentActivity() {
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SimpleNtpCheckerApp(viewModel: SimpleNtpViewModel = viewModel()) {
+fun SimpleNtpCheckerApp() {
+    val context = LocalContext.current
+    val viewModel: SimpleNtpViewModel = viewModel(factory = SimpleNtpViewModel.factory(context))
     val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
 
@@ -195,6 +200,21 @@ fun SimpleNtpCheckerApp(viewModel: SimpleNtpViewModel = viewModel()) {
                 uiState.result?.let { result ->
                     ResultCard(result)
                 }
+            }
+
+            // ── Query History ─────────────────────────────────────────────
+            AnimatedVisibility(
+                visible = uiState.history.isNotEmpty(),
+                enter = fadeIn(tween(400)),
+                exit  = fadeOut(tween(200)),
+            ) {
+                HistorySection(
+                    entries = uiState.history,
+                    onEntryClick = { entry ->
+                        focusManager.clearFocus()
+                        viewModel.selectHistoryEntry(entry)
+                    },
+                )
             }
         }
     }
@@ -315,3 +335,92 @@ private fun MetricRow(label: String, value: String) {
         )
     }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// History section
+// ─────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun HistorySection(
+    entries: List<NtpHistoryEntry>,
+    onEntryClick: (NtpHistoryEntry) -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.History,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp),
+                )
+                Text(
+                    text = "Recent Queries",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            Spacer(Modifier.height(10.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.15f))
+
+            entries.forEachIndexed { index, entry ->
+                if (index > 0) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.10f))
+                }
+                HistoryRow(entry = entry, onClick = { onEntryClick(entry) })
+            }
+        }
+    }
+}
+
+@Composable
+private fun HistoryRow(entry: NtpHistoryEntry, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        // Two-line text block (timestamp + server), fills remaining width
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = entry.timestamp,
+                style = MaterialTheme.typography.bodySmall,
+                fontFamily = FontFamily.Monospace,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = "\tntp://${entry.server}:${entry.port}",
+                style = MaterialTheme.typography.bodySmall,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+        // Status icon on the right
+        Spacer(Modifier.width(8.dp))
+        Icon(
+            imageVector = if (entry.success) Icons.Filled.CheckCircle else Icons.Filled.Error,
+            contentDescription = if (entry.success) "Success" else "Failed",
+            tint = if (entry.success)
+                MaterialTheme.colorScheme.secondary
+            else
+                MaterialTheme.colorScheme.error,
+            modifier = Modifier.size(20.dp),
+        )
+    }
+}
+

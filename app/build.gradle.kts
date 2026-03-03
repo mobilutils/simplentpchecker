@@ -12,8 +12,8 @@ android {
         applicationId = "io.github.mobilutils.simplentpchecker"
         minSdk = 26
         targetSdk { version = release(rootProject.extra["defaultTargetSdkVersion"] as Int) }
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -69,6 +69,9 @@ dependencies {
 
     // Apache Commons Net – NTP client
     implementation(libs.commons.net)
+
+    // Preferences DataStore – persistent history
+    implementation(libs.amdx.datastore.preferences)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
