@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.mobilutils.simplentpchecker.ui.theme.SimpleNTPCheckerTheme
@@ -72,7 +73,7 @@ class MainActivity : ComponentActivity() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Root composable
 // ─────────────────────────────────────────────────────────────────────────────
-
+@Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimpleNtpCheckerApp(viewModel: SimpleNtpViewModel = viewModel()) {
@@ -108,36 +109,54 @@ fun SimpleNtpCheckerApp(viewModel: SimpleNtpViewModel = viewModel()) {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            // ── Server Address Input ──────────────────────────────────────
-            OutlinedTextField(
-                value = uiState.serverAddress,
-                onValueChange = viewModel::onServerAddressChange,
-                label = { Text("NTP Server Address") },
-                placeholder = { Text("e.g. pool.ntp.org") },
-                singleLine = true,
+            // ── Server Address + Port Row ─────────────────────────────────
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = ImeAction.Go.let { KeyboardType.Uri },
-                    imeAction = ImeAction.Go,
-                ),
-                keyboardActions = KeyboardActions(
-                    onGo = {
-                        focusManager.clearFocus()
-                        viewModel.checkReachability()
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                OutlinedTextField(
+                    value = uiState.serverAddress,
+                    onValueChange = viewModel::onServerAddressChange,
+                    label = { Text("NTP Server Address") },
+                    placeholder = { Text("e.g. pool.ntp.org") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Uri,
+                        imeAction = ImeAction.Next,
+                    ),
+                    isError = uiState.result is NtpResult.Error ||
+                            uiState.result is NtpResult.DnsFailure,
+                    supportingText = {
+                        when (val r = uiState.result) {
+                            is NtpResult.DnsFailure ->
+                                Text("Cannot resolve \"${r.host}\"", color = MaterialTheme.colorScheme.error)
+                            is NtpResult.Error ->
+                                Text(r.message, color = MaterialTheme.colorScheme.error)
+                            else -> {}
+                        }
                     },
-                ),
-                isError = uiState.result is NtpResult.Error ||
-                        uiState.result is NtpResult.DnsFailure,
-                supportingText = {
-                    when (val r = uiState.result) {
-                        is NtpResult.DnsFailure ->
-                            Text("Cannot resolve \"${r.host}\"", color = MaterialTheme.colorScheme.error)
-                        is NtpResult.Error ->
-                            Text(r.message, color = MaterialTheme.colorScheme.error)
-                        else -> {}
-                    }
-                },
-            )
+                )
+                OutlinedTextField(
+                    value = uiState.port,
+                    onValueChange = viewModel::onPortChange,
+                    label = { Text("Port") },
+                    placeholder = { Text("123") },
+                    singleLine = true,
+                    modifier = Modifier.width(90.dp),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Go,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onGo = {
+                            focusManager.clearFocus()
+                            viewModel.checkReachability()
+                        },
+                    ),
+                )
+            }
 
             // ── Check Button ─────────────────────────────────────────────
             Button(

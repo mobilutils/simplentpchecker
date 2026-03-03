@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 data class NtpUiState(
     /** Text field contents. */
     val serverAddress: String = "pool.ntp.org",
+    /** NTP port (default 123). */
+    val port: String = "123",
     /** Whether a network request is currently in progress. */
     val isLoading: Boolean = false,
     /** The result of the last check, or null if no check has been run yet. */
@@ -41,6 +43,13 @@ class SimpleNtpViewModel(
         _uiState.value = _uiState.value.copy(serverAddress = newValue, result = null)
     }
 
+    /** Called whenever the user edits the port text field. */
+    fun onPortChange(newValue: String) {
+        // Accept only digits and cap at 5 chars (max port 65535).
+        val filtered = newValue.filter { it.isDigit() }.take(5)
+        _uiState.value = _uiState.value.copy(port = filtered, result = null)
+    }
+
     /**
      * Starts an NTP reachability check against the current [NtpUiState.serverAddress].
      *
@@ -49,6 +58,7 @@ class SimpleNtpViewModel(
     fun checkReachability() {
         val host = _uiState.value.serverAddress.trim()
         if (host.isEmpty()) return
+        val port = _uiState.value.port.toIntOrNull()?.takeIf { it in 1..65535 } ?: 123
 
         // Cancel any previous in-flight request.
         checkJob?.cancel()
@@ -56,7 +66,7 @@ class SimpleNtpViewModel(
         _uiState.value = _uiState.value.copy(isLoading = true, result = null)
 
         checkJob = viewModelScope.launch {
-            val result = repository.query(host)
+            val result = repository.query(host, port)
             _uiState.value = _uiState.value.copy(isLoading = false, result = result)
         }
     }

@@ -11,9 +11,9 @@ android {
     defaultConfig {
         applicationId = "io.github.mobilutils.simplentpchecker"
         minSdk = 26
-        targetSdkVersion(rootProject.extra["defaultTargetSdkVersion"] as Int)
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk { version = release(rootProject.extra["defaultTargetSdkVersion"] as Int) }
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

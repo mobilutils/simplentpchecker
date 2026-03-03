@@ -76,7 +76,7 @@ class NtpRepository {
      * Must be called from a coroutine context that allows blocking I/O
      * (e.g. [Dispatchers.IO]).
      */
-    suspend fun query(host: String): NtpResult = withContext(Dispatchers.IO) {
+    suspend fun query(host: String, port: Int = NTP_PORT): NtpResult = withContext(Dispatchers.IO) {
         val client = NTPUDPClient()
         client.setDefaultTimeout(TIMEOUT)   // Duration overload – not deprecated
         try {
@@ -89,7 +89,7 @@ class NtpRepository {
             }
 
             val info: TimeInfo = try {
-                client.getTime(address, NTP_PORT)
+                client.getTime(address, port)
             } catch (e: SocketException) {
                 // A SocketException with "Network is unreachable" means no connectivity.
                 val msg = e.message ?: ""
