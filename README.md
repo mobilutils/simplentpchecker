@@ -2,6 +2,14 @@
 
 A minimal, modern Android app that tests the reachability of any NTP (Network Time Protocol) server and displays detailed timing metrics.
 
+## Visuals
+
+![Screenshot OK](screenshots/v1.1/20260303_v1.1_Screenshot-OK_212907.png)
+
+![Screenshot DNS FAILURE](screenshots/v1.1/20260303_v1.1_Screenshot-DNS%20FAILURE_213210.png)
+
+![Screenshot TIMEOUT](screenshots/v1.1/20260303_v1.1_Screenshot-TIMEOUT_213242.png)
+
 ## Features
 
 - Enter any NTP server address (defaults to `pool.ntp.org`)
